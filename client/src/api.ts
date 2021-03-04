@@ -18,6 +18,7 @@ export type ApiClient = {
     searchBefore: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>
     searchAfter: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>
     searchFrom: (email:string,pageNum:number) => Promise<Ticket[]>
+    addTicket: (ticket:Ticket, pageNum:number) => Promise<Ticket[]>
 }
 
 export const createApiClient = (): ApiClient => {
@@ -42,6 +43,9 @@ export const createApiClient = (): ApiClient => {
         },
         searchFrom: (email,pageNum) =>{
             return axios.get(BaseAPIRootPath+'/searchFrom',{params:{email:email,page: pageNum}}).then((res) => res.data);
+        },
+        addTicket: (ticket,pageNum) =>{
+          return axios.post(BaseAPIRootPath+'/addTicket',{params:{ticket:ticket,page:pageNum}}).then((res) => res.data);
         }
     }
 }

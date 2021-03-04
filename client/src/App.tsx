@@ -52,6 +52,7 @@ export class App extends React.PureComponent<{}, AppState> {
 			}
 		}
 	}
+
 	decreasePage = () => {
 		this.restoreTickets(this.state.page-1)
 		this.setState({
@@ -70,20 +71,15 @@ export class App extends React.PureComponent<{}, AppState> {
 		this.setState({switchSearch:(!this.state.switchSearch)})
 	}
 
-	renderTickets = (tickets: Ticket[]) => {
-		return (<ul className='tickets'>
-			{tickets.map((ticket,index) => (<li key={ticket.id} className='ticket'>
-				<h5 className='title'>{ticket.title}</h5>
-				<button onClick={()=>this.handleClickRename(tickets[index].id)} style={{position: 'absolute', right: 0,border:"none", background:0, color: "gray"}}>
-					Rename
-				</button>
-				<p id={tickets[index].id} className="txt">{ticket.content}</p>
-				<HideButton id={tickets[index].id}/>
-				<footer>
-					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
-				</footer>
-			</li>))}
-		</ul>);
+	addNewTicket = (ticket:Ticket) => {
+		const newTicket:Ticket = {id:ticket.id,title:ticket.title,content:ticket.content,userEmail:ticket.userEmail,creationTime:ticket.creationTime,labels:ticket.labels}
+		this.addNewTicketHelper(newTicket)
+	}
+
+	async addNewTicketHelper(newTicket:Ticket){
+		this.setState({tickets: await api.addTicket(newTicket,this.state.page)})
+		alert("congratulations! \n" +
+			"Your new ticket named: "+newTicket.title+" has been uploaded to the system")
 	}
 
 	async searchBefore(date:number, keyWord:string){
@@ -105,7 +101,6 @@ export class App extends React.PureComponent<{}, AppState> {
 	onSearch = async (val: string, newPage?: number) => {
 		const before:number = val.search("before:")
 		const from:number = val.search("from:")
-		console.log(from)
 		const after:number = val.search("after:")
 		const date:boolean = !isNaN(Date.parse(val.substring(val.indexOf(":")+1,val.indexOf(' '))))
 		const isemail:boolean = this.isEmail(val)
@@ -132,6 +127,22 @@ export class App extends React.PureComponent<{}, AppState> {
 		}, 300);
 	}
 
+	renderTickets = (tickets: Ticket[]) => {
+		return (<ul className='tickets'>
+			{tickets.map((ticket,index) => (<li key={ticket.id} className='ticket'>
+				<h5 className='title'>{ticket.title}</h5>
+				<button onClick={()=>this.handleClickRename(tickets[index].id)} style={{position: 'absolute', right: 0,border:"none", background:0, color: "gray"}}>
+					Rename
+				</button>
+				<p id={tickets[index].id} className="txt">{ticket.content}</p>
+				<HideButton id={tickets[index].id}/>
+				<footer>
+					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
+				</footer>
+			</li>))}
+		</ul>);
+	}
+
 	render() {
 		const {tickets} = this.state;
 		return (<main>
@@ -143,7 +154,7 @@ export class App extends React.PureComponent<{}, AppState> {
 					<input type="search" placeholder="Search by id..." onChange={(e) => this.searchById(e.target.value)}/>}
 				<button onClick={this.switchSearch} style={{position: 'absolute', right: 40, color: "blackBright"}}>Search by id</button>
 			</header>
-			<AddNewTicket />
+			<AddNewTicket setter={this.addNewTicket}/>
 			{tickets ? <div className='results'>Showing {tickets.length*(this.state.page-1)} to {tickets.length*this.state.page} results</div> : null }
 			{tickets ? this.renderTickets(tickets) : <h2>Loading..</h2>}
 			{this.state.page>1? <Button onClick={this.decreasePage} variant="contained" size="small" >prev</Button>:null}

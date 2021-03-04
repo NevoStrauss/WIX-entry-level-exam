@@ -2,6 +2,7 @@ import express, {json} from 'express';
 import bodyParser = require('body-parser');
 import { tempData } from './temp-data';
 import { serverAPIPort, APIPath } from '@fed-exam/config';
+import {Ticket} from "../client/src/api";
 
 console.log('starting server', { serverAPIPort, APIPath });
 
@@ -98,7 +99,6 @@ app.get('/searchFrom',(req,res)=>{
 })
 
 app.post('/rename', (req, res) => {
-  console.log("rename")
   const newTitle = req.body.newTitle
   const currId = req.body.id
   const fs = require('fs')
@@ -119,6 +119,21 @@ app.post('/rename', (req, res) => {
     res.send(false)
   }
 });
+
+app.post('/addTicket',(req,res)=>{
+  const ticket:Ticket = req.body.params.ticket
+  const fs = require('fs')
+  tempData.unshift(ticket)
+  const jsonString = JSON.stringify(tempData,null,2)
+  fs.writeFile('./dta.json',jsonString,(err:any)=>{
+    if (err)
+      console.log(err)
+  })
+  // @ts-ignore
+  const page: number = req.body.page || 1;
+  const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  res.send(paginatedData);
+})
 
 app.listen(serverAPIPort);
 console.log('server running', serverAPIPort)
