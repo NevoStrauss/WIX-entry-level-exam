@@ -9,7 +9,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import {Ticket} from "./api";
 
-const IconLabelButtons = (props:any) => {
+const AddNewTicket = (props:any) => {
     const setter = props.setter
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("No title")
@@ -57,7 +57,6 @@ const IconLabelButtons = (props:any) => {
         setter(ticket)
         handleClose()
     }
-
 
     return (
         <div>
@@ -122,5 +121,5 @@ const IconLabelButtons = (props:any) => {
         </div>
     );
 }
-export default IconLabelButtons
+export default AddNewTicket;
 

@@ -10,27 +10,33 @@ export type Ticket = {
     labels?: string[];
 }
 
+{/* Clients api methods declaration*/}
 export type ApiClient = {
     getTickets: (pageNum:number) => Promise<Ticket[]>;
+    searchFromUrl: (keyWord:string, pageNum:number) => Promise<Ticket[]>;
     renameTitle: (id:string, newTitle:string) => Promise<boolean>;
     searchAllData: (keyWord:string,pageNum:number) => Promise<Ticket[]>;
-    searchById: (idNum:string,pageNum:number) => Promise<Ticket[]>;
-    searchBefore: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>
-    searchAfter: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>
-    searchFrom: (email:string,pageNum:number) => Promise<Ticket[]>
-    addTicket: (ticket:Ticket, pageNum:number) => Promise<Ticket[]>
+    searchByPublisher: (email:string,pageNum:number) => Promise<Ticket[]>;
+    searchBefore: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>;
+    searchAfter: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>;
+    searchFrom: (email:string,pageNum:number) => Promise<Ticket[]>;
+    addTicket: (ticket:Ticket, pageNum:number) => Promise<Ticket[]>;
 }
 
+{/* Clients api methods calls for server*/}
 export const createApiClient = (): ApiClient => {
     return {
         getTickets: (pageNum) => {
             return axios.get(APIRootPath,{params: {page: pageNum}}).then((res) => res.data);
         },
+        searchFromUrl:(keyWord,pageNum) => {
+            return axios.get(`http://localhost:3232/search?search=${keyWord}`,{params:{page:pageNum}}).then((res) => res.data);
+        },
         renameTitle: (id:string, newTitle:string) => {
             return axios.post(BaseAPIRootPath+'/rename',{id: id,newTitle: newTitle}).then((res)=>res.data);
         },
-        searchById: (idNum,pageNum) => {
-            return axios.post(BaseAPIRootPath+'/searchById',{id: idNum,page: pageNum}).then((res) => res.data);
+        searchByPublisher: (email,pageNum) => {
+            return axios.get(BaseAPIRootPath+'/searchByPublisher',{params:{mail:email,page: pageNum}}).then((res) => res.data);
         },
         searchAllData: (keyWord,pageNum) =>{
             return axios.get(BaseAPIRootPath+'/searchAllData',{params:{keyWord:keyWord,page: pageNum}}).then((res) => res.data);

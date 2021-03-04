@@ -19,8 +19,9 @@ app.use((_, res, next) => {
   next();
 });
 
+//The main getTickets api request searches the database by its hardcoded order.
+//It returns the pages in the range between the {@params of the slice method} -> (notice that all the method in the server that returns an array of tickets to display slices the array)
 app.get(APIPath,(req, res) => {
-
   // @ts-ignore
   const page: number = req.query.page || 1;
 
@@ -29,13 +30,26 @@ app.get(APIPath,(req, res) => {
   res.send(paginatedData);
 });
 
+//This method is called after a URL request is accepted.
+//Activated only if the syntax is-> http://localhost:3232/search?search=${keyWord}
+//It returns an array of tickets contains the keyWord
+app.get("/search",(req,res)=>{
+  console.log("http")
+  const keyWord = req.query.search
+  if (keyWord) {
+    const searchValue: string = keyWord.toString().toLowerCase();
+    const filteredData = tempData.filter((t) => (t.title.toLowerCase().includes(searchValue) || t.content.toLowerCase().includes(searchValue)));
+    res.send(filteredData);
+  }
+});
 
-app.post('/searchById',(req, res) => {
+//This method searches tickets written from specified publisher==email address
+app.get('/searchByPublisher',(req, res) => {
   //@ts-ignore
-  const id: string = req.body.id;
+  const email: string = req.query.email;
   let filteredByID = []
   for (let i=0; i<tempData.length;i++) {
-    if (tempData[i].id.search(id)>=0){
+    if (tempData[i].userEmail.search(email)>=0){
       filteredByID.push(tempData[i])
     }
   }
@@ -46,6 +60,7 @@ app.post('/searchById',(req, res) => {
   res.send(filteredByID);
 });
 
+//This search is the default search and its searches a ticket includes a keyWord in all the tickets in the database
 app.get('/searchAllData',(req,res)=>{
   // @ts-ignore
   const keyWord:string = req.query.keyWord
@@ -58,6 +73,7 @@ app.get('/searchAllData',(req,res)=>{
   res.send(filteredTickets)
 })
 
+//The 3 method below specify the search to before/after some date, and from Email.
 app.get('/searchBefore',(req,res)=>{
   // @ts-ignore
   const keyWord:string = req.query.keyWord
@@ -98,6 +114,8 @@ app.get('/searchFrom',(req,res)=>{
   res.send(filteredTickets)
 })
 
+//The rename method gets receives an id of an existing ticket and a new title for this ticket, and replace the old title with the new title
+//It updates the database to so it will remain after a refresh.
 app.post('/rename', (req, res) => {
   const newTitle = req.body.newTitle
   const currId = req.body.id
@@ -120,6 +138,7 @@ app.post('/rename', (req, res) => {
   }
 });
 
+//This method is the receives a new ticket and adds it to the top of the tickets list.
 app.post('/addTicket',(req,res)=>{
   const ticket:Ticket = req.body.params.ticket
   const fs = require('fs')
