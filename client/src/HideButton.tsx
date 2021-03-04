@@ -2,8 +2,10 @@ import React,{useState} from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
+//This component is the See less / See more button.
 const HideButton=(props:any)=>{
-    const {id} = props
+    const {id} = props           //The id of the ticket to hide/show
+    //Some styling
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
             margin: {
@@ -15,11 +17,11 @@ const HideButton=(props:any)=>{
         }),
     );
 
-    const classes = useStyles();
-    const [hideORshow, setHideORshow] = useState(false)
+    const classes = useStyles(); //Apply style
+    const [hideORshow, setHideORshow] = useState(false)  //The state of the current ticket content
 
     const setState = () => {
-        if (hideORshow){
+        if (hideORshow){ //Need to show less
             // @ts-ignore
             document.getElementById(id).style.cssText =
                 "    overflow:hidden;\n" +
@@ -30,7 +32,7 @@ const HideButton=(props:any)=>{
                 "    -webkit-line-clamp: 3; \n" +
                 "    -webkit-box-orient: vertical;"
         }
-        else {
+        else { //Need to show more
             // @ts-ignore
             document.getElementById(id).style.cssText =
                 "font-size: medium;"+
@@ -43,7 +45,7 @@ const HideButton=(props:any)=>{
                 " -webkit-box-orient:"+
                 "font-size:medium;"
         }
-        setHideORshow(!hideORshow)
+        setHideORshow(!hideORshow) //Set new state
     }
 
     return (

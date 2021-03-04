@@ -9,14 +9,18 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import {Ticket} from "./api";
 
-const AddNewTicket = (props:any) => {
+//This component is the "add new ticket" button
+//It enables the users to create there on tickets and upload them to the system and write them into the database
+const AddNewTicket = (props:any) => { //The props sent here is a function of the App component
     const setter = props.setter
-    const [open, setOpen] = useState(false);
-    const [title, setTitle] = useState("No title")
-    const [content, setContent] = useState("No content")
-    const [email, setEmail] = useState("No Email")
-    const [labels, setLabels] = useState([])
+    //States initialization:
+    const [open, setOpen] = useState(false); //open and close the dialog box
+    const [title, setTitle] = useState("No title") //title input
+    const [content, setContent] = useState("No content") //content input
+    const [email, setEmail] = useState("No Email") //email input
+    const [labels, setLabels] = useState([]) //labels input
 
+    //handle commands-> set new values for the states
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -34,14 +38,18 @@ const AddNewTicket = (props:any) => {
     const handleChangeEmail = (e:string) => {
         setEmail(e)
     }
+
+    //Disassembled the string into array of substrings by separating between the spaces
     const handleChangeLabels = (e:string) => {
-        const newLabels:string[] = e.split(" ")
+        const newLabels:string[] = e.split(' ')
         // @ts-ignore
         setLabels(newLabels)
     }
 
-    const generate = (length:number) =>{
-        const characters ='abcdefghijklmnopqrstuvwxyz0123456789';
+    //generates new ID for the new ticket. the length of the new ID is 36 characters and the characters are taken from 37 different characters.
+    //Notice that it might happen in zero probability that an identical id will be generated. (there are 36^36 optional ID's :))
+    const generateNewID = (length:number) =>{
+        const characters ='abcdefghijklmnopqrstuvwxyz0123456789-';
         let result = ' ';
         const charactersLength = characters.length;
         for ( let i = 0; i < length; i++ ) {
@@ -50,14 +58,18 @@ const AddNewTicket = (props:any) => {
         return result;
     }
 
+    //This method executed after pressing the upload button.
+    //It creates a Ticket object with the values of the states inserted by the user.
+    //It sends the Ticket to the App component for the api request using the setter method extracted from the props.
     const handleUpload = () => {
-        const generateID:string = generate(36)
+        const generateID:string = generateNewID(36)
         const currentTime = new Date().getTime()
-        const ticket:Ticket = {id:generateID,title:title,content:content,userEmail:email,creationTime:currentTime,labels:[]}
+        const ticket:Ticket = {id:generateID,title:title,content:content,userEmail:email,creationTime:currentTime,labels:labels}
         setter(ticket)
         handleClose()
     }
 
+    //Notice that the onChange function of the TextFields sends the value of the events (user writing) to the matching methods.
     return (
         <div>
             <Button startIcon={<AddIcon />} variant="outlined" color="primary" onClick={handleClickOpen}>

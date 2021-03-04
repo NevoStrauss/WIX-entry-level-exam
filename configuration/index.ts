@@ -5,4 +5,3 @@ export const APIPath = `/api/${APIDomain}`;
 export const BaseAPIRootPath = `${host}:${serverAPIPort}`
 export const APIRootPath = `${host}:${serverAPIPort}${APIPath}`
 export const staticsPort = 3000;
-export const staticsUrl = `${host}:${staticsPort}/`;
