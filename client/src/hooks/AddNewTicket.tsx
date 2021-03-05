@@ -7,7 +7,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import {Ticket} from "./api";
+import {Ticket} from "../api";
 
 //This component is the "add new ticket" button
 //It enables the users to create there on tickets and upload them to the system and write them into the database
@@ -46,11 +46,18 @@ const AddNewTicket = (props:any) => { //The props sent here is a function of the
         setLabels(newLabels)
     }
 
+    const reSetStates = () => {
+        setTitle("No title")
+        setContent("No content")
+        setEmail("No Email")
+        setLabels([])
+    } 
+
     //generates new ID for the new ticket. the length of the new ID is 36 characters and the characters are taken from 37 different characters.
     //Notice that it might happen in zero probability that an identical id will be generated. (there are 36^36 optional ID's :))
     const generateNewID = (length:number) =>{
         const characters ='abcdefghijklmnopqrstuvwxyz0123456789-';
-        let result = ' ';
+        let result = '';
         const charactersLength = characters.length;
         for ( let i = 0; i < length; i++ ) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -67,6 +74,7 @@ const AddNewTicket = (props:any) => { //The props sent here is a function of the
         const ticket:Ticket = {id:generateID,title:title,content:content,userEmail:email,creationTime:currentTime,labels:labels}
         setter(ticket)
         handleClose()
+        reSetStates()
     }
 
     //Notice that the onChange function of the TextFields sends the value of the events (user writing) to the matching methods.

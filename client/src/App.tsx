@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.scss';
 import {createApiClient, Ticket} from './api';
-import Fontbar from "./Font-bar";
+import Fontbar from "./hooks/Font-bar";
 import Button from '@material-ui/core/Button';
-import HideButton from "./HideButton";
-import AddNewTicket from "./AddNewTicket";
-import DeleteTicket from "./DeleteTicket";
-import RenameTitle from "./RenameTitle";
+import HideButton from "./hooks/HideButton";
+import AddNewTicket from "./hooks/AddNewTicket";
+import DeleteTicket from "./hooks/DeleteTicket";
+import RenameTitle from "./hooks/RenameTitle";
 
 export type AppState = {
 	tickets?: Ticket[],

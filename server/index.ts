@@ -1,13 +1,13 @@
 import express, {json} from 'express';
 import bodyParser = require('body-parser');
-import { tempData,fs } from './temp-data';
+import { tempData } from './temp-data';
 import { serverAPIPort, APIPath } from '@fed-exam/config';
 import {Ticket} from "../client/src/api";
 
 console.log('starting server', { serverAPIPort, APIPath });
 
 const app = express();
-
+const fs = require('fs')
 const PAGE_SIZE = 20;
 
 app.use(bodyParser.json());
@@ -103,7 +103,7 @@ app.post('/rename', (req, res) => {
   const idx = req.body.params.idx
   const currIdx = PAGE_SIZE*(page-1)+idx
   tempData[currIdx].title = newTitle
-  writData()
+  writeData()
   res.send(true)
 });
 
@@ -111,9 +111,8 @@ app.post('/rename', (req, res) => {
 //This method receives a new ticket and adds it to the top of the tickets list.
 app.post('/addTicket',(req,res)=>{
   const ticket:Ticket = req.body.params.ticket
-  // const fs = require('fs')
   tempData.unshift(ticket)
-  writData()
+  writeData()
   // @ts-ignore
   const page: number = req.body.page || 1;
   const paginatedData = slicePage(page);
@@ -126,7 +125,7 @@ app.post('/deleteTicket',(req,res)=>{
   const page: number = req.body.params.page || 1;
   const currIdx = PAGE_SIZE*(page-1)+idx
   tempData.splice(currIdx,1)
-  writData()
+  writeData()
   // @ts-ignore
   const paginatedData = slicePage(page)
   res.send(paginatedData);
@@ -136,13 +135,14 @@ function slicePage(page:number){
   return tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 }
 
-function writData(){
+function writeData(){
   const jsonString = JSON.stringify(tempData,null,2)
-  fs.writeFile('./dta.json', jsonString, (err:any)=>{
+  fs.writeFile('./data.json', jsonString, (err:any)=>{
     if (err)
       console.log(err)
   })
 }
+
 
 app.listen(serverAPIPort);
 console.log('server running', serverAPIPort)
