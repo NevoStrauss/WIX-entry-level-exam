@@ -5,6 +5,7 @@ import Fontbar from "./Font-bar";
 import Button from '@material-ui/core/Button';
 import HideButton from "./HideButton";
 import AddNewTicket from "./AddNewTicket";
+import DeleteTicket from "./DeleteTicket";
 
 export type AppState = {
 	tickets?: Ticket[],
@@ -96,6 +97,14 @@ export class App extends React.PureComponent<{}, AppState> {
 			"Your new ticket named: "+newTicket.title+" has been uploaded to the system")
 	}
 
+	deleteTicket = (idx:number) => {
+		this.deleteTicketHelper(idx)
+	}
+
+	async deleteTicketHelper(idx:number){
+		this.setState({tickets: await api.deleteTicket(idx,this.state.page)})
+	}
+
 	//This method is activated if the input of the "searcher" is like: before:[DATE] keyWord..
 	//It renders the Tickets written before [DATE]
 	async searchBefore(date:number, keyWord:string){
@@ -178,6 +187,7 @@ export class App extends React.PureComponent<{}, AppState> {
 				</button>
 				<p id={tickets[index].id} className="txt">{ticket.content}</p>
 				<HideButton id={tickets[index].id}/>
+				<DeleteTicket idx={index} setter={this.deleteTicket}/>
 				<footer>
 					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
 				</footer>

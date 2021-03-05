@@ -21,6 +21,7 @@ export type ApiClient = {
     searchAfter: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>;
     searchFrom: (email:string,pageNum:number) => Promise<Ticket[]>;
     addTicket: (ticket:Ticket, pageNum:number) => Promise<Ticket[]>;
+    deleteTicket: (idx:number, pageNum:number) => Promise<Ticket[]>;
 }
 
 {/* Clients api methods calls for server*/}
@@ -52,6 +53,10 @@ export const createApiClient = (): ApiClient => {
         },
         addTicket: (ticket,pageNum) =>{
           return axios.post(BaseAPIRootPath+'/addTicket',{params:{ticket:ticket,page:pageNum}}).then((res) => res.data);
+        },
+        deleteTicket: (idx, pageNum) =>{
+            console.log("api server")
+            return axios.post(BaseAPIRootPath+'/deleteTicket',{params:{idx:idx,page:pageNum}}).then((res) => res.data);
         }
     }
 }
