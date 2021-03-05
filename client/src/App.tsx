@@ -186,7 +186,6 @@ export class App extends React.PureComponent<{}, AppState> {
 		</ul>);
 	}
 
-//note
 	render() {
 		const {tickets} = this.state;
 		return (<main>
