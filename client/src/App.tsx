@@ -6,13 +6,13 @@ import Button from '@material-ui/core/Button';
 import HideButton from "./HideButton";
 import AddNewTicket from "./AddNewTicket";
 import DeleteTicket from "./DeleteTicket";
+import RenameTitle from "./RenameTitle";
 
 export type AppState = {
 	tickets?: Ticket[],
 	search: string;
 	newTitleState:boolean
 	page:number
-	switchSearch:boolean
 }
 
 const api = createApiClient();
@@ -22,7 +22,6 @@ export class App extends React.PureComponent<{}, AppState> {
 		search: '',				//A A remainder state for the current search keyWord
 		newTitleState:false, 	//Unused at the moment
 		page:1,             	//A remainder state for the current page rendered
-		switchSearch:false 		//State for changing type of search between all over search to search by publisher(email)
 	}
 
 	searchDebounce: any = null;
@@ -34,14 +33,6 @@ export class App extends React.PureComponent<{}, AppState> {
 		this.setState({tickets: await api.getTickets(this.state.page)});
 	}
 
-	//This method receives an email address (or a part of it) of a ticket's publisher and render's all its associated tickets
-	async searchByPublisher(email:string){
-		if (email === ""){
-			this.setState({tickets: await api.getTickets(this.state.page)})
-			return
-		}
-		this.setState({tickets: await api.searchByPublisher(email,this.state.page)})
-	}
 
 	//This method is called from  both decrease and increase page size methods
 	//It in charge of synchronizing the page number state with the render of the current tickets
@@ -49,17 +40,22 @@ export class App extends React.PureComponent<{}, AppState> {
 		this.setState({tickets: await api.getTickets(page)});
 	}
 
-	//This method is called from the Rename button, and gets the id of the Ticket to rename as a parameter
-	//It send an api post request to the server for changing the title name of this ticket
-	async handleClickRename(id:string){
+	//This method is called from the component of the rename button, and gets the index of the Ticket to rename as a parameter.
+	//It calls another assistance function because of the method delivered as a props so it doesnt recognize "this" inside.
+	//The helper function sends an api post request to the server for changing the title name of this ticket
+	handleClickRename = (idx:number) =>{
 		const newTitle = window.prompt("Please enter new title:")
-		if (newTitle) {
-			const success:Boolean = await api.renameTitle(id,newTitle)
-			if (success) {
-				this.setState({tickets: await api.getTickets(this.state.page)});
-			}
+		if (newTitle)
+			this.handleClickRenameHelper(idx,newTitle)
+	}
+
+	async handleClickRenameHelper(idx:number, newTitle:string){
+		const success:Boolean = await api.renameTitle(idx,newTitle,this.state.page)
+		if (success) {
+			this.setState({tickets: await api.getTickets(this.state.page)});
 		}
 	}
+
 
 	//This method is called from the prev button, and reduces 1 from the page state
 	decreasePage = () => {
@@ -77,11 +73,6 @@ export class App extends React.PureComponent<{}, AppState> {
 		})
 	}
 
-	//This method is called from the render method.
-	//It changes the state of the switchSearch state to decide which button to display and which search to execute next time
-	switchSearch = () =>{
-		this.setState({switchSearch:(!this.state.switchSearch)})
-	}
 
 	//This method is passed as a props to the AddNewTicket component.
 	//It receives a Ticket that has been built in the AddNewTicket component, and sent into another method(addNewTicketHelper)
@@ -97,6 +88,9 @@ export class App extends React.PureComponent<{}, AppState> {
 			"Your new ticket named: "+newTicket.title+" has been uploaded to the system")
 	}
 
+	//This method is passed as a props to the RenameTitle component.
+	//It receives an index of a Ticket in the current Ticket's list that has been built sent originally from the renderTickets method.
+	//Like we saw before, the api request is executed from the helper method.
 	deleteTicket = (idx:number) => {
 		this.deleteTicketHelper(idx)
 	}
@@ -151,7 +145,6 @@ export class App extends React.PureComponent<{}, AppState> {
 		const from:number = val.search("from:")
 		const after:number = val.search("after:")
 		const date:boolean = !isNaN(Date.parse(val.substring(val.indexOf(":")+1,val.indexOf(' '))))
-		const isEmail:boolean = this.isEmail(val)
 		if (date) {
 			const formatDate:number = Date.parse(val.substring(val.indexOf(":")+1,val.indexOf(' ')))
 			const restOf:string = val.substring(val.indexOf(' ')+1)
@@ -160,7 +153,7 @@ export class App extends React.PureComponent<{}, AppState> {
 			else if (after)
 				this.searchAfter(formatDate,restOf)
 		}
-		else if (from>=0 && isEmail) {
+		else if (from>=0) {
 			const email = val.substring(val.indexOf(":")+1)
 			this.searchFrom(email)
 		}
@@ -182,12 +175,10 @@ export class App extends React.PureComponent<{}, AppState> {
 		return (<ul className='tickets'>
 			{tickets.map((ticket,index) => (<li key={ticket.id} className='ticket'>
 				<h5 className='title'>{ticket.title}</h5>
-				<button onClick={()=>this.handleClickRename(tickets[index].id)} style={{position: 'absolute', right: 0,border:"none", background:0, color: "gray"}}>
-					Rename
-				</button>
 				<p id={tickets[index].id} className="txt">{ticket.content}</p>
 				<HideButton id={tickets[index].id}/>
 				<DeleteTicket idx={index} setter={this.deleteTicket}/>
+				<RenameTitle idx={index} setter={this.handleClickRename}/>
 				<footer>
 					<div className='meta-data'>By {ticket.userEmail} | { new Date(ticket.creationTime).toLocaleString()}</div>
 				</footer>
@@ -202,12 +193,7 @@ export class App extends React.PureComponent<{}, AppState> {
 			<Fontbar />
 			<h1>Tickets List</h1>
 			<header>
-				{!this.state.switchSearch ?
-					<input type="search" placeholder="Search..." onChange={(e) => this.onSearch(e.target.value)}/> :
-					<input type="search" placeholder="Search by Email..." onChange={(e) => this.searchByPublisher(e.target.value)}/>}
-				{!this.state.switchSearch?
-					<button onClick={this.switchSearch} style={{position: 'absolute', right: 40, color: "blackBright"}}>Search by Email</button>:
-					<button onClick={this.switchSearch} style={{position: 'absolute', right: 40, color: "blackBright"}}>Search all</button>}
+				<input type="search" placeholder="Search..." onChange={(e) => this.onSearch(e.target.value)}/>
 			</header>
 			<AddNewTicket setter={this.addNewTicket}/>
 			{tickets && tickets.length!==0 ? <div className='results'>Showing Tickets {this.calculateLeftRange(tickets.length)} to {this.calculateRightRange(tickets.length)}, results:</div> : "No Tickets to show -> go back" }

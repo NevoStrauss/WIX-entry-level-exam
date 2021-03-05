@@ -14,9 +14,8 @@ export type Ticket = {
 export type ApiClient = {
     getTickets: (pageNum:number) => Promise<Ticket[]>;
     searchFromUrl: (keyWord:string, pageNum:number) => Promise<Ticket[]>;
-    renameTitle: (id:string, newTitle:string) => Promise<boolean>;
+    renameTitle: (idx:number, newTitle:string, pageNum:number) => Promise<boolean>;
     searchAllData: (keyWord:string,pageNum:number) => Promise<Ticket[]>;
-    searchByPublisher: (email:string,pageNum:number) => Promise<Ticket[]>;
     searchBefore: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>;
     searchAfter: (date:number, keyWord:string,pageNum:number) => Promise<Ticket[]>;
     searchFrom: (email:string,pageNum:number) => Promise<Ticket[]>;
@@ -33,11 +32,9 @@ export const createApiClient = (): ApiClient => {
         searchFromUrl:(keyWord,pageNum) => {
             return axios.get(`http://localhost:3232/search?search=${keyWord}`,{params:{page:pageNum}}).then((res) => res.data);
         },
-        renameTitle: (id:string, newTitle:string) => {
-            return axios.post(BaseAPIRootPath+'/rename',{id: id,newTitle: newTitle}).then((res)=>res.data);
-        },
-        searchByPublisher: (email,pageNum) => {
-            return axios.get(BaseAPIRootPath+'/searchByPublisher',{params:{mail:email,page: pageNum}}).then((res) => res.data);
+        renameTitle: (idx, newTitle,pageNum) => {
+            console.log("api")
+            return axios.post(BaseAPIRootPath+'/rename',{params:{idx: idx,newTitle: newTitle,page:pageNum}}).then((res)=>res.data);
         },
         searchAllData: (keyWord,pageNum) =>{
             return axios.get(BaseAPIRootPath+'/searchAllData',{params:{keyWord:keyWord,page: pageNum}}).then((res) => res.data);

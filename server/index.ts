@@ -25,7 +25,7 @@ app.get(APIPath,(req, res) => {
   // @ts-ignore
   const page: number = req.query.page || 1;
 
-  const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginatedData = slicePage(page);
 
   res.send(paginatedData);
 });
@@ -34,7 +34,6 @@ app.get(APIPath,(req, res) => {
 //Activated only if the syntax is-> http://localhost:3232/search?search=${keyWord}
 //It returns an array of tickets contains the keyWord
 app.get("/search",(req,res)=>{
-  console.log("http")
   const keyWord = req.query.search
   if (keyWord) {
     const searchValue: string = keyWord.toString().toLowerCase();
@@ -43,22 +42,6 @@ app.get("/search",(req,res)=>{
   }
 });
 
-//This method searches tickets written from specified publisher==email address
-app.get('/searchByPublisher',(req, res) => {
-  //@ts-ignore
-  const email: string = req.query.email;
-  let filteredByID = []
-  for (let i=0; i<tempData.length;i++) {
-    if (tempData[i].userEmail.search(email)>=0){
-      filteredByID.push(tempData[i])
-    }
-  }
-  // @ts-ignore
-  const page: number = req.query.page || 1;
-  filteredByID = filteredByID.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  res.send(filteredByID);
-});
 
 //This search is the default search and its searches a ticket includes a keyWord in all the tickets in the database
 app.get('/searchAllData',(req,res)=>{
@@ -101,13 +84,11 @@ app.get('/searchAfter',(req,res)=>{
   res.send(filteredTickets)
 })
 
+
 app.get('/searchFrom',(req,res)=>{
   // @ts-ignore
   const email:string = req.query.email
-  // @ts-ignore
-  let filteredTickets = tempData
-      .filter((t) => (t.userEmail.toLowerCase()).includes(email.toLowerCase()));
-
+  let filteredTickets = tempData.filter((t) => (t.userEmail.toLowerCase()).search(email.toLowerCase())>=0);
   // @ts-ignore
   const page: number = req.query.page || 1;
   filteredTickets = filteredTickets.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -117,40 +98,25 @@ app.get('/searchFrom',(req,res)=>{
 //The rename method gets receives an id of an existing ticket and a new title for this ticket, and replace the old title with the new title
 //It updates the database to so it will remain after a refresh.
 app.post('/rename', (req, res) => {
-  const newTitle = req.body.newTitle
-  const currId = req.body.id
-  // const fs = require('fs')
-  let found = false;
-  for (let i = 0; i < tempData.length && !found; i++) {
-    if (tempData[i].id === currId){
-      found=true
-      tempData[i].title = newTitle
-      const jsonString = JSON.stringify(tempData,null,2)
-      fs.writeFile('./dta.json', jsonString, (err:any)=>{
-        if (err)
-          console.log(err)
-      })
-      res.send(true)
-    }
-  }
-  if (!found) {
-    res.send(false)
-  }
+  const newTitle = req.body.params.newTitle
+  const page: number = req.body.params.page || 1;
+  const idx = req.body.params.idx
+  const currIdx = PAGE_SIZE*(page-1)+idx
+  tempData[currIdx].title = newTitle
+  writData()
+  res.send(true)
 });
+
 
 //This method receives a new ticket and adds it to the top of the tickets list.
 app.post('/addTicket',(req,res)=>{
   const ticket:Ticket = req.body.params.ticket
   // const fs = require('fs')
   tempData.unshift(ticket)
-  const jsonString = JSON.stringify(tempData,null,2)
-  fs.writeFile('./dta.json',jsonString,(err:any)=>{
-    if (err)
-      console.log(err)
-  })
+  writData()
   // @ts-ignore
   const page: number = req.body.page || 1;
-  const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginatedData = slicePage(page);
   res.send(paginatedData);
 })
 
@@ -159,20 +125,24 @@ app.post('/deleteTicket',(req,res)=>{
   const idx = req.body.params.idx
   const page: number = req.body.params.page || 1;
   const currIdx = PAGE_SIZE*(page-1)+idx
-  console.log(currIdx)
   tempData.splice(currIdx,1)
+  writData()
+  // @ts-ignore
+  const paginatedData = slicePage(page)
+  res.send(paginatedData);
+});
+
+function slicePage(page:number){
+  return tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+}
+
+function writData(){
   const jsonString = JSON.stringify(tempData,null,2)
   fs.writeFile('./dta.json', jsonString, (err:any)=>{
     if (err)
       console.log(err)
   })
-  // @ts-ignore
-  console.log(page)
-  const paginatedData = tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  res.send(paginatedData);
-});
-
-
+}
 
 app.listen(serverAPIPort);
 console.log('server running', serverAPIPort)
