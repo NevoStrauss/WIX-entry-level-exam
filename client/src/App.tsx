@@ -196,6 +196,8 @@ export class App extends React.PureComponent<{}, AppState> {
 			</header>
 			<AddNewTicket setter={this.addNewTicket}/>
 			{tickets && tickets.length!==0 ? <div className='results'>Showing Tickets {this.calculateLeftRange(tickets.length)} to {this.calculateRightRange(tickets.length)}, results:</div> : "No Tickets to show -> go back" }
+			{tickets && tickets.length!==0? <div>{this.state.page>1 ? <Button onClick={this.decreasePage} variant="contained" size="small" >prev</Button>:null}
+			<Button onClick={this.increasePage} variant="contained" size="small">next</Button></div>:null}
 			{tickets ? this.renderTickets(tickets) : <h2>Loading..</h2>}
 			{this.state.page>1? <Button onClick={this.decreasePage} variant="contained" size="small" >prev</Button>:null}
 			<Button onClick={this.increasePage} variant="contained" size="small">next</Button>

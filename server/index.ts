@@ -131,10 +131,17 @@ app.post('/deleteTicket',(req,res)=>{
   res.send(paginatedData);
 });
 
+//Assistance method to modify the number of tickets to render
 function slicePage(page:number){
   return tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 }
 
+//Main method to write and save the changes made into the database
+//------------------IMPORTANT NOTE---------------------//
+//In some IDE's that configure to restart the server on every change in the files, it is possible that a change in the database will crush the server!
+//That is because the require method that assign the database to tempData const (in directory server/temp-data.ts) will be called on every change,
+//and therefore, it is possible that that a writeFile command will be executed on empty database or  the opposite.
+//So please make sure you run the program with the proper IDE configuration.
 function writeData(){
   const jsonString = JSON.stringify(tempData,null,2)
   fs.writeFile('./data.json', jsonString, (err:any)=>{
