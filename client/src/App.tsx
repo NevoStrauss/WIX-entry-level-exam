@@ -118,12 +118,12 @@ export class App extends React.PureComponent<{}, AppState> {
 	}
 
 	//An assistance method to determine if a strong is a possible email
-	isEmail = (emailAddress:string) =>{
+	isEmail = (emailAddress:string):boolean => {
 		return emailAddress.search("@") >= 0;
 	}
 
 	//An assistance method to determine what is the left range of the number of tickets to show
-	calculateLeftRange = (length:number) =>{
+	calculateLeftRange = (length:number):number =>{
 		if (length === 20)
 			return length*(this.state.page-1)+1
 		else
@@ -131,7 +131,7 @@ export class App extends React.PureComponent<{}, AppState> {
 	}
 
 	//An assistance method to determine what is the right range of the number of tickets to show
-	calculateRightRange = (length:number) =>{
+	calculateRightRange = (length:number):number =>{
 		if (length === 20)
 			return length*this.state.page
 		else
@@ -140,7 +140,7 @@ export class App extends React.PureComponent<{}, AppState> {
 
 	//This method is called from the 'onChange' function of input search tag.
 	//It determine which search is requested, executes it and renders it
-	onSearch = async (val: string, newPage?: number) => {
+	onSearch = async (val: string) => {
 		const before:number = val.search("before:")
 		const from:number = val.search("from:")
 		const after:number = val.search("after:")

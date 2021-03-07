@@ -55,7 +55,7 @@ const AddNewTicket = (props:any) => { //The props sent here is a function of the
 
     //generates new ID for the new ticket. the length of the new ID is 36 characters and the characters are taken from 37 different characters.
     //Notice that it might happen in zero probability that an identical id will be generated. (there are 36^36 optional ID's :))
-    const generateNewID = (length:number) =>{
+    const generateNewID = (length:number):string =>{
         const characters ='abcdefghijklmnopqrstuvwxyz0123456789-';
         let result = '';
         const charactersLength = characters.length;

@@ -132,7 +132,7 @@ app.post('/deleteTicket',(req,res)=>{
 });
 
 //Assistance method to modify the number of tickets to render
-function slicePage(page:number){
+function slicePage(page:number):Ticket[]{
   return tempData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 }
 
