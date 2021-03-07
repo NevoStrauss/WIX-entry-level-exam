@@ -15,8 +15,8 @@ body {
 		overflow:hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
-		line-height: 18px;     /* fallback */
-		max-height: 54px;      /* fallback */
+		line-height: normal;     /* fallback */
+		max-height:initial;      /* fallback */
 		-webkit-line-clamp: 3; /* number of lines to show */
 		-webkit-box-orient: vertical;
 	}

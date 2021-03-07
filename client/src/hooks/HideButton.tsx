@@ -27,8 +27,8 @@ const HideButton=(props:any)=>{
                 "    overflow:hidden;\n" +
                 "    text-overflow: ellipsis;\n" +
                 "    display: -webkit-box;\n" +
-                "    line-height: 18px;     \n" +
-                "    max-height: 54px;      \n" +
+                "    line-height: normal;     \n" +
+                "    max-height: initial;      \n" +
                 "    -webkit-line-clamp: 3; \n" +
                 "    -webkit-box-orient: vertical;"
         }
